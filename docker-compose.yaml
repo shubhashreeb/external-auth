@@ -1,0 +1,7 @@
+version: "2.4"
+services:
+  grafana:
+    image: shubhashreeb/external-auth:v0
+    ports:
+    - "3000:3000"
+    - "8080:8080"

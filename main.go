@@ -65,6 +65,7 @@ func (a *AuthorizationServer) Check(ctx context.Context, req *auth.CheckRequest)
 }
 
 func main() {
+	fmt.Println("Running the auth server ...")
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		panic(err)
