@@ -1,6 +1,6 @@
 module github.com/shubhashreeb/external-auth
 
-go 1.20
+go 1.19
 
 require (
 	github.com/envoyproxy/go-control-plane v0.11.0

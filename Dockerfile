@@ -13,7 +13,7 @@ RUN go mod download
 COPY . .
 
 # Build the binary
-RUN CGO_ENABLED=0 go build -o envoy-auth-server main.go
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o envoy-auth-server main.go
 
 # Copy into scratch
 FROM scratch
