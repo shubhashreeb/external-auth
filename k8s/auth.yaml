@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: authsvc
+  labels:
+    app: authsvc
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: http
+    targetPort: 8080
+    nodePort: 32080
+  selector:
+    app: auth
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: auth
+        version: v1
+    spec:
+      containers:
+      - name: authsvc
+        image:  shubhashreeb09/external-auth:v0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080 
+        env:
+        - name: HTTP_PORT
+          value: '8080'
