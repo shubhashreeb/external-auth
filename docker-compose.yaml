@@ -1,7 +1,56 @@
-version: "2.4"
+version: '3'
+volumes:
+ pgadmin:
+ postgres_data:
+     driver: local
+
+networks:
+ keycloak:
+   driver: bridge
+   
 services:
-  grafana:
-    image: shubhashreeb/external-auth:v0
-    ports:
-    - "3000:3000"
-    - "8080:8080"
+ postgres:
+     image: postgres
+     volumes:
+       - postgres_data:/var/lib/postgresql/data
+     environment:
+       POSTGRES_DB: keycloak
+       POSTGRES_USER: keycloak
+       POSTGRES_PASSWORD: password
+     networks:
+       - keycloak
+     ports:
+       - "5432:5432"
+ keycloak:
+     image: quay.io/keycloak/keycloak:legacy
+     environment:
+       DB_VENDOR: POSTGRES
+       DB_ADDR: postgres
+       DB_DATABASE: keycloak
+       DB_USER: keycloak
+       DB_SCHEMA: public
+       DB_PASSWORD: password
+       KEYCLOAK_USER: admin
+       KEYCLOAK_PASSWORD: password
+       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+       #JDBC_PARAMS: "ssl=true"
+     ports:
+       - 8080:8080
+     networks:
+       - keycloak
+     depends_on:
+       - postgres
+#  pgadmin:
+#      container_name: pgadmin_container
+#      image: dpage/pgadmin4
+#      environment:
+#        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+#        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+#        PGADMIN_CONFIG_SERVER_MODE: 'False'
+#      volumes:
+#        - pgadmin:/var/lib/pgadmin
+#      ports:
+#        - "${PGADMIN_PORT:-5050}:80"
+#      networks:
+#        - keycloak
+#      restart: unless-stopped

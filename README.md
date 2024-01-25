@@ -18,5 +18,13 @@ when auth service return the response to envoy, it would add the following param
 
 infra -> 
 
-1. 
+1. curl Request to the k8s keycloak
+
+curl -X POST \
+  'http://192.168.86.211:32088/realms/nshub/protocol/openid-connect/token' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'grant_type=password&client_id=auth-svc&client_secret=3nUB5EUG3fenYFa9xqnF376PLFZHWxFV&username=aaron&password=aaron1' -v
+
+
+
 
