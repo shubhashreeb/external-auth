@@ -70,6 +70,8 @@ func login(w http.ResponseWriter, req *http.Request) {
 	}
 	res := keycloakClinet.GetLoginToken(p)
 	response, _ := json.Marshal(res)
+	fmt.Println("Response :: ", response)
+	// Add the entry into cache - {Token}, {user-info}
 
 	//fmt.Fprintf(w, "hello\n")
 	w.Header().Set("Content-Type", "application/json")
