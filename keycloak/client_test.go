@@ -41,5 +41,5 @@ func TestHttpClient(t *testing.T) {
 	res, err := NewMyHTTPClient().
 		SendRequest(kc, req)
 	assert.Nil(t, err)
-	fmt.Println("Res body: ", res)
+	fmt.Println("Res body: ", res, err)
 }

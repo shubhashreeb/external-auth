@@ -50,18 +50,25 @@ func (c *HTTPClient) SendRequest(kConf KeycloakConfig, login LoginRequest) (*JWT
 		return nil, fmt.Errorf("http response code is not OK: %s\n", res.Status)
 	}
 
-	fmt.Println("The response body with JWT token :", res.Body)
 	bytes, e := io.ReadAll(res.Body)
 	if e != nil {
 		fmt.Printf("Error in reading the response body: %s\n", e)
 		return nil, e
 	}
+	fmt.Println("The response body with JWT token :", string(bytes))
+
 	// unmarshal the respnse and extract JWT from response body
-	var jwt *JWT
+	jwt := &JWT{}
 	e = json.Unmarshal(bytes, jwt)
 	if e != nil {
 		fmt.Printf("Error in unmarshalling the token : %s\n", e)
 		return nil, e
 	}
+	//Add to redis cache
+
+	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
+	c, err := redis.NewRedisCache(&config)
+
 	return jwt, nil
+
 }
