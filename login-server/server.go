@@ -12,31 +12,10 @@ import (
 
 var keycloakClinet *Keycloak
 
-type JWT struct {
-	AccessToken      string `json:"access_token"`
-	IDToken          string `json:"id_token"`
-	ExpiresIn        int    `json:"expires_in"`
-	RefreshExpiresIn int    `json:"refresh_expires_in"`
-	RefreshToken     string `json:"refresh_token"`
-}
-
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 	ExpiresIn    int    `json:"expiresIn"`
-}
-
-type Keycloak struct {
-	keycloak     gocloak.GoCloak
-	address      string
-	clientId     string // clientId specified in Keycloak
-	clientSecret string // client secret specified in Keycloak
-	realm        string // realm specified in Keycloak
 }
 
 func NewKeycloak() *Keycloak {
@@ -70,7 +49,7 @@ func login(w http.ResponseWriter, req *http.Request) {
 	}
 	res := keycloakClinet.GetLoginToken(p)
 	response, _ := json.Marshal(res)
-	fmt.Println("Response :: ", response)
+	fmt.Println("Response  received :: ", response)
 	// Add the entry into cache - {Token}, {user-info}
 
 	//fmt.Fprintf(w, "hello\n")
