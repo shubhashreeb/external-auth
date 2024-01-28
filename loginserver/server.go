@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	_ "github.com/dgrijalva/jwt-go/v4"
 	"github.com/shubhashreeb/external-auth/keycloak"
+	"github.com/shubhashreeb/external-auth/redis"
 )
 
 type LoginResponse struct {
@@ -45,7 +47,9 @@ func login(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	jwt, err := keycloak.NewMyHTTPClient().SendRequest(*keycloak.GetNewKeycloakConfig(), login)
+	jwt, err := keycloak.
+		NewMyHTTPClient().
+		SendRequest(*keycloak.GetNewKeycloakConfig(), login)
 
 	loginRes := LoginResponse{
 		AccessToken:  jwt.AccessToken,
@@ -60,6 +64,19 @@ func login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//Add to redis cache
+	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
+	conf, err := redis.NewRedisCache(&config)
+	if err != nil {
+		fmt.Println("Error in connecting server")
+	}
+
+	err = conf.Set(jwt.AccessToken, []byte("AccessToken"), 2000*time.Second)
+	if err != nil {
+		fmt.Println("error setting key %s, Error : %v", jwt.AccessToken, err)
+	}
+
+	fmt.Println("Added token key to redis", jwt.AccessToken, err)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(json)

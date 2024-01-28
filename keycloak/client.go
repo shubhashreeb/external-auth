@@ -64,10 +64,6 @@ func (c *HTTPClient) SendRequest(kConf KeycloakConfig, login LoginRequest) (*JWT
 		fmt.Printf("Error in unmarshalling the token : %s\n", e)
 		return nil, e
 	}
-	//Add to redis cache
-
-	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
-	c, err := redis.NewRedisCache(&config)
 
 	return jwt, nil
 

@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ type RedisCache struct {
 func NewRedisCache(config *RedisConfig) (Cache, error) {
 	redisOpts := &redis.UniversalOptions{
 		MaxRetries: 5,
-		Password:   "sqgjV5Utfn",
+		Password:   "1G1E0puEvq", // "YzNGbmFsWTFWWFJtYmc9PQo=",
 	}
 	if config.PrimaryName != "" {
 		redisOpts.MasterName = config.PrimaryName
