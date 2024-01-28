@@ -31,3 +31,10 @@ curl -X POST \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -d 'grant_type=password&client_id=auth-svc&client_secret=3nUB5EUG3fenYFa9xqnF376PLFZHWxFV&username=aaron&password=aaron' -v
 
+
+
+
+curl --location --request GET 'http://192.168.86.211:8090/logout' \
+--header 'Content-Type: application/json' \
+--data '{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkMjE4ZjQxNS0wYTFmLTQ5ZmUtYjI1NS0wM2FkMzFiMGIyY2YifQ.eyJleHAiOjE3MDY0Njc2MzgsImlhdCI6MTcwNjQ2NTgzOCwianRpIjoiMDY3NjdiZDctMDFhMy00NGJiLWFiNDYtMzc2ZDBmNzRjZTM0IiwiaXNzIjoiaHR0cDovLzE5Mi4xNjguODYuMjExOjMyMDg4L3JlYWxtcy9uc2h1YiIsImF1ZCI6Imh0dHA6Ly8xOTIuMTY4Ljg2LjIxMTozMjA4OC9yZWFsbXMvbnNodWIiLCJzdWIiOiI4ZmRiZTU0OC1jNjc2LTQyYTktYWM0Ni1lMzk5NDcyZmIzNTkiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiYXV0aC1zdmMiLCJzZXNzaW9uX3N0YXRlIjoiMDE0YTY2NGMtMDk5Ny00ZjBmLThhNzctNTUwYmExYWExMTczIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6IjAxNGE2NjRjLTA5OTctNGYwZi04YTc3LTU1MGJhMWFhMTE3MyJ9.U1i01FTyNNOtqgTestD1QIOMiKix9Wb1R5nythsk-ys"}'
+
