@@ -34,3 +34,8 @@ curl -X POST \
 
 
 curl -X POST "http://localhost:8089/login" -d '{"username": ""}'
+
+
+
+http://{domain-name}/auth/realms/{realm-name}/protocol/openid-connect/logout?redirect_uri=encodedRedirectUri. 
+

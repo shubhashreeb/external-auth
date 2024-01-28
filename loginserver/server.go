@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	_ "github.com/dgrijalva/jwt-go/v4"
@@ -31,7 +32,45 @@ type LoginResponse struct {
 // 	return k
 // }
 
-func login(w http.ResponseWriter, req *http.Request) {
+type APIServer struct {
+	cache redis.Cache
+}
+
+func NewAPIServer() *APIServer {
+	//Add to redis cache
+	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
+	cache, err := redis.NewRedisCache(&config)
+	if err != nil {
+		fmt.Println("Error in connecting server")
+	}
+	return &APIServer{
+		cache: cache,
+	}
+}
+
+// it receives the logout Request
+// 1st -> validate if this contains the token in its body
+// Get the Authorization header from the request
+// 2nd -> sends logout request to keycloak
+// 3rd -> Remove the redis cache
+// return the response
+func (server APIServer) logout(w http.ResponseWriter, req *http.Request) {
+	authHeader := req.Header.Get("authorization")
+	//fmt.Println("Logout details is ", req.Body, authHeader)
+	if authHeader == "" {
+		fmt.Errorf("Authorization header missing")
+	}
+	// Check if  Authorization header has Bearer token
+
+	bearerToken := strings.Fields(authHeader)
+	if len(bearerToken) != 2 || bearerToken[0] != "Bearer" {
+		fmt.Errorf("Invalid Auth header")
+	}
+	fmt.Println("Bearer token : ", bearerToken[1])
+
+}
+
+func (server APIServer) login(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("Login details is ", req.Body)
 	login := keycloak.LoginRequest{}
 	err := json.NewDecoder(req.Body).Decode(&login)
@@ -64,14 +103,7 @@ func login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//Add to redis cache
-	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
-	conf, err := redis.NewRedisCache(&config)
-	if err != nil {
-		fmt.Println("Error in connecting server")
-	}
-
-	err = conf.Set(jwt.AccessToken, []byte("AccessToken"), 2000*time.Second)
+	err = server.cache.Set(jwt.AccessToken, []byte("AccessToken"), 2000*time.Second)
 	if err != nil {
 		fmt.Println("error setting key %s, Error : %v", jwt.AccessToken, err)
 	}
@@ -112,9 +144,49 @@ func login(w http.ResponseWriter, req *http.Request) {
 // 	}
 // }
 
+// validate if token is present in request
+// if token is present, it will check with redis if the token is valid
+// if token is valid, it will return the response
+
+func (server APIServer) validateToken(w http.ResponseWriter, req *http.Request) {
+	authHeader := req.Header.Get("authorization")
+	//fmt.Println("Logout details is ", req.Body, authHeader)
+	if authHeader == "" {
+		fmt.Errorf("Authorization header missing")
+	}
+	// Check if  Authorization header has Bearer token
+
+	bearerToken := strings.Fields(authHeader)
+	if len(bearerToken) != 2 || bearerToken[0] != "Bearer" {
+		fmt.Println("Invalid Auth header")
+	}
+	fmt.Println("Bearer token : ", bearerToken[1])
+
+	if bearerToken[1] == "" {
+		fmt.Println("Token is missing")
+
+	}
+	bytes, err := server.cache.Get(bearerToken[1])
+	if err != nil {
+		fmt.Println("error getting token from redis %s, Error : %v", bearerToken[1], err)
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+
+	fmt.Println("Here is the token value fetched", string(bytes))
+
+	// fmt.Println("Added token key to redis", jwt.AccessToken, err)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(""))
+}
+
 func Server() {
-	// keycloakClinet = NewKeycloak().Setup()
-	http.HandleFunc("/login", login)
+	apiServer := NewAPIServer()
+	// keycloakClient = NewKeycloak().Setup()
+	http.HandleFunc("/login", apiServer.login)
+	http.HandleFunc("/logout", apiServer.logout)
+	http.HandleFunc("/validate-token", apiServer.validateToken)
+
 	fmt.Println("Running the login server on port: 8090")
 	http.ListenAndServe(":8090", nil)
 }
