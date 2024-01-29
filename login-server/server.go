@@ -10,6 +10,7 @@ import (
 
 	"github.com/Nerzal/gocloak/v13"
 	_ "github.com/dgrijalva/jwt-go/v4"
+	"github.com/shubhashreeb/external-auth/metrics"
 	"github.com/shubhashreeb/external-auth/redis"
 )
 
@@ -64,8 +65,9 @@ func NewKeycloak() *Keycloak {
 }
 
 type APIServer struct {
-	cache  redis.Cache
-	kCloak *Keycloak
+	cache   redis.Cache
+	kCloak  *Keycloak
+	metrics metrics.Metrics
 }
 
 func NewAPIServer() *APIServer {
@@ -76,14 +78,20 @@ func NewAPIServer() *APIServer {
 		fmt.Println("Error in connecting server")
 	}
 	kc := NewKeycloak()
+	m := *metrics.NewMetrics()
 	return &APIServer{
-		cache:  cache,
-		kCloak: kc,
+		cache:   cache,
+		kCloak:  kc,
+		metrics: m,
 	}
 }
 
 func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("Login details is ", req.Body)
+
+	//Increment prometheus counter for logoutReceived
+	server.metrics.AddCounterStats("loginReceived", 1)
+
 	var p LoginRequest
 	err := json.NewDecoder(req.Body).Decode(&p)
 	if err != nil {
@@ -91,12 +99,6 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Println("Auth details is ", p)
-
-	// for name, headers := range req.Header {
-	// 	for _, h := range headers {
-	// 		fmt.Println("%v: %v\n", name, h)
-	// 	}
-	// }
 
 	res := server.kCloak.GetLoginToken(p)
 	response, _ := json.Marshal(res)
@@ -123,6 +125,10 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 
 func (server *APIServer) logout(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("Logout details is ", req.Body)
+
+	//Increment prometheus counter for logoutReceived
+	server.metrics.AddCounterStats("logoutReceived", 1)
+
 	p := LogoutRequest{}
 	// json.Marshal()
 	err := json.NewDecoder(req.Body).Decode(&p)
@@ -255,6 +261,8 @@ func extractAuthToken(req http.Request) string {
 
 func Serve() {
 	server := NewAPIServer()
+	go server.metrics.RunPrometheusServer()
+
 	http.HandleFunc("/login", server.login)
 	http.HandleFunc("/logout", server.logout)
 	http.HandleFunc("/validate-token", server.validateToken)
