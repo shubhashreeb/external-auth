@@ -8,7 +8,8 @@ import (
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	auth "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"github.com/gogo/googleapis/google/rpc"
-	"github.com/shubhashreeb/external-auth/loginserver"
+
+	loginserver "github.com/shubhashreeb/external-auth/login-server"
 	"golang.org/x/net/context"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
@@ -71,7 +72,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	go loginserver.Server()
+	go loginserver.Serve()
 
 	s := grpc.NewServer()
 	auth.RegisterAuthorizationServer(s, &AuthorizationServer{})
