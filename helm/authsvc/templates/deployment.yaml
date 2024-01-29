@@ -40,9 +40,12 @@ spec:
             - name: grpc
               containerPort: {{ .Values.service.grpcport }}
               protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.service.metrics }}
+              protocol: TCP
           livenessProbe:
               tcpSocket:
-                port: 8080
+                port: 8090
               initialDelaySeconds: 15
               periodSeconds: 10
           #   httpGet:
@@ -50,7 +53,7 @@ spec:
           #     port: http
           readinessProbe:
             tcpSocket:
-                port: 8080
+                port: 8090
             initialDelaySeconds: 15
             periodSeconds: 10
           resources:

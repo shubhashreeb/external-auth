@@ -116,7 +116,7 @@ func (m *Metrics) RunPrometheusServer() {
 	prometheus.MustRegister(loginReceived)
 	prometheus.MustRegister(logoutReceived)
 
-	log.Fatal(http.ListenAndServe(":8880", nil))
+	log.Fatal(http.ListenAndServe(":9090", nil))
 }
 
 func newHandlerWithHistogram(handler http.Handler, histogram *prometheus.HistogramVec) http.Handler {

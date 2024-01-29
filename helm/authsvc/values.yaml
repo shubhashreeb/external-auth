@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: shubhashreeb09/authsvc
-  pullPolicy: IfNotPresent
+  pullPolicy: Always #IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v0"
 
@@ -39,6 +39,7 @@ securityContext: {}
 service:
   httpport: 8090
   grpcport: 8080
+  metrics: 9090
   type: NodePort #ClusterIP
   port: 8090
 
