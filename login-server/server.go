@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/dgrijalva/jwt-go/v4"
 	"github.com/shubhashreeb/external-auth/metrics"
+	"github.com/shubhashreeb/external-auth/ratelimiter"
 	"github.com/shubhashreeb/external-auth/redis"
 )
 
@@ -38,9 +39,10 @@ type LoginResponse struct {
 }
 
 type APIServer struct {
-	cache   redis.Cache
-	kCloak  *Keycloak
-	metrics metrics.Metrics
+	cache       redis.Cache
+	kCloak      *Keycloak
+	ratelimiter *ratelimiter.RateLimiter
+	metrics     metrics.Metrics
 }
 
 func NewAPIServer() *APIServer {
@@ -53,9 +55,10 @@ func NewAPIServer() *APIServer {
 	kc := NewKeycloak()
 	m := *metrics.NewMetrics()
 	return &APIServer{
-		cache:   cache,
-		kCloak:  kc,
-		metrics: m,
+		cache:       cache,
+		kCloak:      kc,
+		ratelimiter: ratelimiter.NewRateLimiter(),
+		metrics:     m,
 	}
 }
 
@@ -72,6 +75,19 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Println("Auth details is ", p)
+
+	// check if the request is under rate limit
+	opts := ratelimiter.RateLimitOpts{
+		Domain:       "www.aaron.com",
+		Path:         "/",
+		Organization: "nshub",
+		User:         "aaron",
+	}
+	if !server.ratelimiter.CheckIfRateUnderLimit(opts) {
+		fmt.Println("Rate is over the set limit")
+		http.Error(w, "rate exceded", http.StatusBadRequest)
+		return
+	}
 
 	res := server.kCloak.GetLoginToken(p)
 	response, _ := json.Marshal(res)
@@ -158,7 +174,6 @@ func (server *APIServer) validateToken(w http.ResponseWriter, req *http.Request)
 // fetch token from Keycloak
 // create request with all the details such as clientId, secret etc to authenticate user
 // once response is received, with token, store it in redis and return token to user
-
 // this takes the http request and extract the authz header and
 // extract the access token from the request and return it
 // if not found it will return blank string
