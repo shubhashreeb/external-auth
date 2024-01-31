@@ -79,7 +79,7 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 	// check if the request is under rate limit
 	opts := ratelimiter.RateLimitOpts{
 		Domain:       "www.aaron.com",
-		Path:         "/",
+		Path:         "/auth",
 		Organization: "nshub",
 		User:         "aaron",
 	}
@@ -91,7 +91,7 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 
 	res := server.kCloak.GetLoginToken(p)
 	response, _ := json.Marshal(res)
-	fmt.Println("Response :: ", response)
+	//fmt.Println("Response :: ", response)
 
 	loginRes := LoginResponse{
 		AccessToken:  res.AccessToken,

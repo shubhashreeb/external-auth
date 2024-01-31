@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: authsvc
-        image:  shubhashreeb09/external-auth:v0
+        image:  shubhashreeb09/external-auth:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080 

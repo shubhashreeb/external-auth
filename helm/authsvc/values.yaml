@@ -8,7 +8,7 @@ image:
   repository: shubhashreeb09/authsvc
   pullPolicy: Always #IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0"
+  tag: "v1"
 
 imagePullSecrets: []
 nameOverride: ""
