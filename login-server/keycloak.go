@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Nerzal/gocloak/v13"
+	"gitlab.com/sitenet/svclib/logger"
 )
 
 type KeycloakConfig struct {
@@ -17,9 +18,10 @@ type KeycloakConfig struct {
 type Keycloak struct {
 	client *gocloak.GoCloak
 	config KeycloakConfig
+	log    logger.Logger
 }
 
-func NewKeycloak() *Keycloak {
+func NewKeycloak(log logger.Logger) *Keycloak {
 	c := KeycloakConfig{
 		address:      "http://192.168.86.211:32088/",
 		clientId:     "auth-svc",
@@ -29,6 +31,7 @@ func NewKeycloak() *Keycloak {
 	return &Keycloak{
 		config: c,
 		client: gocloak.NewClient(c.address),
+		log:    log,
 	}
 }
 

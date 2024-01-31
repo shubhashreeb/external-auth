@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"gitlab.com/sitenet/svclib/logger"
 )
 
 type RateLimiter struct {
@@ -15,6 +17,7 @@ type RateLimiter struct {
 	port   string
 	client *http.Client
 	url    string
+	log    logger.Logger
 }
 
 type RateLimitReq struct {
@@ -59,8 +62,9 @@ type GetRateLimitsResp struct {
 	Responses []*RateLimitResp `protobuf:"bytes,1,rep,name=responses,proto3" json:"responses,omitempty"`
 }
 
-func NewRateLimiter() *RateLimiter {
+func NewRateLimiter(log logger.Logger) *RateLimiter {
 	// shared HTTP transport and client for efficient connection reuse
+	log.Info("Going to initialize the rate limiter")
 	tr := &http.Transport{
 		MaxIdleConns:          10,
 		IdleConnTimeout:       15 * time.Second,
@@ -83,6 +87,7 @@ func NewRateLimiter() *RateLimiter {
 		port:   port,
 		client: httpClient,
 		url:    fmt.Sprintf("http://%s:%s/v1/GetRateLimits", ipAddr, port),
+		log:    log,
 	}
 }
 
@@ -94,7 +99,7 @@ type RateLimitOpts struct {
 }
 
 func (e RateLimiter) CheckIfRateUnderLimit(opts RateLimitOpts) bool {
-	fmt.Println("Going to check with Gubernator ...")
+	e.log.Info("Going to check with Gubernator ...")
 
 	getReq := GetRateLimitsReq{
 		Requests: make([]*RateLimitReq, 0),
@@ -161,23 +166,23 @@ func (e RateLimiter) CheckIfRateUnderLimit(opts RateLimitOpts) bool {
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println("Fatiled to fetch body : ", err)
+		e.log.Info("Fatiled to fetch body : ", err)
 	}
 
-	fmt.Println("Response body : ", string(body))
+	e.log.Info("Response body : ", string(body))
 	var rateLimitResp *GetRateLimitsResp
 	err = json.Unmarshal(body, &rateLimitResp)
-	fmt.Println("Response respnse : ", rateLimitResp, err)
+	e.log.Info("Response respnse : ", rateLimitResp, err)
 
 	// loop over all the responses from the array
 	// if any of the response is not underlimit, return false
 	for cnt, resp := range rateLimitResp.Responses {
 		if resp.Status != "UNDER_LIMIT" {
-			fmt.Println("-- RATE LIMIT HIT -- for ", cnt)
+			e.log.Info("-- RATE LIMIT HIT -- for ", cnt)
 			return false
 		}
 	}
 
-	fmt.Println("Remaining limit :: ", rateLimitResp.Responses[0].Remaining)
+	e.log.Info("Remaining limit :: ", rateLimitResp.Responses[0].Remaining)
 	return true
 }
