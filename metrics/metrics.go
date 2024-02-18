@@ -40,6 +40,27 @@ var (
 			Help:      "Number of invalid logins received",
 		})
 
+	cacheLoginToken = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "k8s",
+			Name:      "cache_login_token",
+			Help:      "Number of token logins cached",
+		})
+
+	loginCacheHit = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "k8s",
+			Name:      "login_cache_hit",
+			Help:      "Number of login cache hit",
+		})
+
+	loginCacheMissed = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "k8s",
+			Name:      "login_cache_missed",
+			Help:      "Number of login cache missed",
+		})
+
 	domains = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: "xds",
@@ -117,6 +138,9 @@ func (m *Metrics) RunPrometheusServer() {
 	prometheus.MustRegister(logoutReceived)
 	prometheus.MustRegister(ratelimited)
 	prometheus.MustRegister(invalidLoginReceived)
+	prometheus.MustRegister(cacheLoginToken)
+	prometheus.MustRegister(loginCacheHit)
+	prometheus.MustRegister(loginCacheMissed)
 
 	log.Fatal(http.ListenAndServe(":9090", nil))
 }
@@ -150,7 +174,15 @@ func (m *Metrics) AddCounterStats(name string, value float64) {
 		loginReceived.Add(value)
 	case "logoutReceived":
 		logoutReceived.Add(value)
-	case "envoyEp":
-		counter.Add(value)
+	case "loginCacheHit":
+		loginCacheHit.Add(value)
+	case "cacheLoginToken":
+		cacheLoginToken.Add(value)
+	case "loginCacheMissed":
+		loginCacheMissed.Add(1)
+		// case "loginCacheHit":
+		// 	loginCacheHit.Add(value)
+		// case "loginCacheHit":
+		// 	loginCacheHit.Add(value)
 	}
 }

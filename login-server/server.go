@@ -80,6 +80,7 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 	var p LoginRequest
 	err := json.NewDecoder(req.Body).Decode(&p)
 	if err != nil {
+		server.metrics.AddCounterStats("invalidLoginReceived", 1)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger.Error(err.Error())
 		return
@@ -95,7 +96,7 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 		User:         "aaron",
 	}
 	if !server.ratelimiter.CheckIfRateUnderLimit(opts) {
-
+		server.metrics.AddCounterStats("ratelimited", 1)
 		server.logger.Info("Rate is over the set limit")
 		http.Error(w, "rate exceeded", http.StatusBadRequest)
 		return
@@ -117,6 +118,8 @@ func (server *APIServer) login(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		server.logger.Info("error setting key %s, Error : %v", loginRes.AccessToken, err)
 	}
+
+	server.metrics.AddCounterStats("cacheLoginToken", 1)
 
 	server.logger.Info("Added token key to redis", loginRes.AccessToken, err)
 	w.Header().Set("Content-Type", "application/json")
@@ -175,6 +178,7 @@ func (server *APIServer) validateToken(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	server.metrics.AddCounterStats("loginCacheHit", 1)
 	server.logger.Info("Here is the token value fetched", bytes)
 
 	// server.logger.Info("Added token key to redis", jwt.AccessToken, err)
