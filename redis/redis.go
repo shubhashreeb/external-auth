@@ -21,7 +21,7 @@ type RedisCache struct {
 func NewRedisCache(config *RedisConfig) (Cache, error) {
 	redisOpts := &redis.UniversalOptions{
 		MaxRetries: 5,
-		Password:   "1G1E0puEvq", // "YzNGbmFsWTFWWFJtYmc9PQo=",
+		Password:   "hRUlOb0S3N", // "YzNGbmFsWTFWWFJtYmc9PQo=",
 	}
 	if config.PrimaryName != "" {
 		redisOpts.MasterName = config.PrimaryName

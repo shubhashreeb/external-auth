@@ -28,7 +28,7 @@ func TestHttpClient(t *testing.T) {
 		Address:      "192.168.86.211",
 		Port:         "32088",
 		ClientId:     "auth-svc",
-		ClientSecret: "3nUB5EUG3fenYFa9xqnF376PLFZHWxFV",
+		ClientSecret: "bJEHpIsKIMNG5Ow7e6ObVZRr3gLl9NEV",
 		Realm:        "nshub",
 		Protocol:     "openid-connect",
 	}

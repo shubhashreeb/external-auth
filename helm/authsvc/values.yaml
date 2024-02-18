@@ -8,7 +8,7 @@ image:
   repository: shubhashreeb09/authsvc
   pullPolicy: Always #IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v1"
+  tag: "v2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,7 +23,9 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+podAnnotations: 
+    prometheus.io/port: 9090,
+    prometheus.io/scrape: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000

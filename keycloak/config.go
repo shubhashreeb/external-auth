@@ -31,7 +31,7 @@ func GetNewKeycloakConfig() *KeycloakConfig {
 		Address:      "192.168.86.211",
 		Port:         "32088",
 		ClientId:     "auth-svc",
-		ClientSecret: "PIvkN94ImvghqZmv0vJUO2PElHtWYXsY",
+		ClientSecret: "bJEHpIsKIMNG5Ow7e6ObVZRr3gLl9NEV",
 		Realm:        "nshub",
 		Protocol:     "openid-connect",
 	}

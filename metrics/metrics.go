@@ -26,18 +26,18 @@ var (
 			Help:      "Number of logouts received",
 		})
 
-	cluster = prometheus.NewGauge(
-		prometheus.GaugeOpts{
+	ratelimited = prometheus.NewCounter(
+		prometheus.CounterOpts{
 			Namespace: "xds",
-			Name:      "number_of_event_received",
-			Help:      "number of clusters served",
+			Name:      "number_of_request_rate_limited",
+			Help:      "number of request rejected due to rate limit",
 		})
 
-	envoyEp = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Namespace: "xds",
-			Name:      "envoyEp",
-			Help:      "number of envoy Ep served",
+	invalidLoginReceived = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "k8s",
+			Name:      "invalid_logins_received",
+			Help:      "Number of invalid logins received",
 		})
 
 	domains = prometheus.NewGauge(
@@ -115,6 +115,8 @@ func (m *Metrics) RunPrometheusServer() {
 	prometheus.MustRegister(histogram)
 	prometheus.MustRegister(loginReceived)
 	prometheus.MustRegister(logoutReceived)
+	prometheus.MustRegister(ratelimited)
+	prometheus.MustRegister(invalidLoginReceived)
 
 	log.Fatal(http.ListenAndServe(":9090", nil))
 }
@@ -140,15 +142,15 @@ func newHandlerWithHistogram(handler http.Handler, histogram *prometheus.Histogr
 
 func (m *Metrics) AddCounterStats(name string, value float64) {
 	switch name {
-	case "cluster":
-		cluster.Add(value)
-	case "domains":
-		domains.Add(value)
+	case "ratelimited":
+		ratelimited.Add(value)
+	case "invalidLoginReceived":
+		invalidLoginReceived.Add(value)
 	case "loginReceived":
 		loginReceived.Add(value)
 	case "logoutReceived":
 		logoutReceived.Add(value)
 	case "envoyEp":
-		envoyEp.Add(value)
+		counter.Add(value)
 	}
 }

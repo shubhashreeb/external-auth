@@ -25,7 +25,7 @@ func NewKeycloak(log logger.Logger) *Keycloak {
 	c := KeycloakConfig{
 		address:      "http://192.168.86.211:32088/",
 		clientId:     "auth-svc",
-		clientSecret: "PIvkN94ImvghqZmv0vJUO2PElHtWYXsY", //"eQxQdPudNTyi8rv5L3Tgs1SO5byD6vNB",
+		clientSecret: "bJEHpIsKIMNG5Ow7e6ObVZRr3gLl9NEV", //"eQxQdPudNTyi8rv5L3Tgs1SO5byD6vNB",
 		realm:        "nshub",
 	}
 	return &Keycloak{
@@ -48,6 +48,7 @@ func (k *Keycloak) GetLoginToken(req LoginRequest) *LoginResponse {
 
 	if err != nil {
 		// http.Error(w, err.Error(), http.StatusForbidden)
+		fmt.Println("Config used ", k.config)
 		return &LoginResponse{}
 	}
 	fmt.Println("Here is the token response", jwt)
