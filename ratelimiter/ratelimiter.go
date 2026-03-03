@@ -13,8 +13,6 @@ import (
 )
 
 type RateLimiter struct {
-	ipAddr string
-	port   string
 	client *http.Client
 	url    string
 	log    logger.Logger
@@ -79,14 +77,13 @@ func NewRateLimiter(log logger.Logger) *RateLimiter {
 		},
 	}
 
-	//Gubernator address
-	ipAddr := "192.168.86.211"
-	port := "30080" //"9080"
+	gubernatorURL := os.Getenv("GUBERNATOR_URL")
+	if gubernatorURL == "" {
+		gubernatorURL = "http://gubernator:8080/v1/GetRateLimits"
+	}
 	return &RateLimiter{
-		ipAddr: ipAddr,
-		port:   port,
 		client: httpClient,
-		url:    fmt.Sprintf("http://%s:%s/v1/GetRateLimits", ipAddr, port),
+		url:    gubernatorURL,
 		log:    log,
 	}
 }

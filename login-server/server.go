@@ -54,7 +54,7 @@ func NewAPIServer() *APIServer {
 		fmt.Printf("Could not instantiate log %s", err.Error())
 	}
 	logger.Info("Factory ...")
-	config := redis.RedisConfig{Addrs: []string{"192.168.86.211:32379"}}
+	config := redis.RedisConfig{Addrs: []string{getEnv("REDIS_ADDR", "redis:6379")}}
 	cache, err := redis.NewRedisCache(&config)
 	if err != nil {
 		logger.Info("Error in connecting server")

@@ -2,10 +2,18 @@ package redis
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis"
 )
+
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
 
 type RedisConfig struct {
 	PrimaryName string
@@ -21,7 +29,7 @@ type RedisCache struct {
 func NewRedisCache(config *RedisConfig) (Cache, error) {
 	redisOpts := &redis.UniversalOptions{
 		MaxRetries: 5,
-		Password:   "hRUlOb0S3N", // "YzNGbmFsWTFWWFJtYmc9PQo=",
+		Password:   getEnv("REDIS_PASSWORD", ""),
 	}
 	if config.PrimaryName != "" {
 		redisOpts.MasterName = config.PrimaryName

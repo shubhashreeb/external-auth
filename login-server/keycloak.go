@@ -3,6 +3,7 @@ package loginserver
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/Nerzal/gocloak/v13"
 	"gitlab.com/sitenet/svclib/logger"
@@ -21,9 +22,16 @@ type Keycloak struct {
 	log    logger.Logger
 }
 
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func NewKeycloak(log logger.Logger) *Keycloak {
 	c := KeycloakConfig{
-		address:      "http://192.168.86.211:32088/",
+		address:      getEnv("KEYCLOAK_URL", "http://keycloak:8080/"),
 		clientId:     "auth-svc",
 		clientSecret: "bJEHpIsKIMNG5Ow7e6ObVZRr3gLl9NEV", //"eQxQdPudNTyi8rv5L3Tgs1SO5byD6vNB",
 		realm:        "nshub",
